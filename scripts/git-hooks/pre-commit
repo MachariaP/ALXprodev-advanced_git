@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "Running pre-commit hook: Checking for README files..."
+
+# Get list of directories (excluding .git)
+directories=$(find . -type d -not -path "./.git/*" -not -name ".git")
+
+for dir in $directories; do
+    # Check if directory contains any tracked files
+    if git ls-files "$dir" --error-unmatch >/dev/null 2>&1; then
+        # Check if README exists (case insensitive)
+        if [ -z "$(find "$dir" -maxdepth 1 -type f -iname 'README*' 2>/dev/null)" ]; then
+            echo "ERROR: Directory $dir has tracked files but no README file!"
+            echo "Please add a README file to $dir before committing."
+            exit 1
+        fi
+    fi
+done
+
+echo "✓ All directories with tracked files have README files."
+exit 0
